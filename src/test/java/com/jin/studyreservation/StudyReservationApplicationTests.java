@@ -1,10 +1,9 @@
 package com.jin.studyreservation;
 
+import com.jin.studyreservation.support.IntegrationTestSupport;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class StudyReservationApplicationTests {
+class StudyReservationApplicationTests extends IntegrationTestSupport {
 
   @Test
   void contextLoads() {
