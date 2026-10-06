@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+  data:
+    redis:
+      host: redis
+      port: 6379
+      password: ${REDIS_PASSWORD}
+
+# 기본값 없이 선언해서, 운영 환경변수가 빠지면 기동 자체가 실패하도록 함
+jwt:
+  secret: ${JWT_SECRET}
+
+server:
+  forward-headers-strategy: framework   # Nginx 뒤에서 OAuth redirect_uri가 https로 생성되게
+  shutdown: graceful
+
+logging:
+  level:
+    root: info

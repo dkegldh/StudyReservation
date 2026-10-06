@@ -1,0 +1,50 @@
+# nginx 이미지가 시작할 때 ${DOMAIN} 을 환경변수로 치환함
+
+server {
+    listen 80;
+    server_name ${DOMAIN};
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name ${DOMAIN};
+
+    ssl_certificate     /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+
+    client_max_body_size 10m;
+    root /usr/share/nginx/html;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+
+    # actuator는 외부에서 접근 차단 (헬스체크는 서버 내부에서 8080으로 직접)
+    location /actuator {
+        deny all;
+    }
+
+    # API와 OAuth 흐름은 Spring으로
+    location ~ ^/(api|oauth2|login/oauth2)/ {
+        proxy_pass http://app:8080;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Vite 빌드 결과물은 파일명에 해시가 있으므로 오래 캐시
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # 나머지는 SPA: 없는 경로는 index.html로 (React Router가 처리)
+    location / {
+        add_header Cache-Control "no-cache";
+        try_files $uri $uri/ /index.html;
+    }
+}
