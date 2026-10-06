@@ -40,6 +40,15 @@ jobs:
           path: build/reports/tests/test
           retention-days: 7
 
+      # 서비스 커버리지 게이트(80%) 결과 확인용
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-coverage-report
+          path: build/reports/jacoco/test/html
+          retention-days: 7
+
   frontend:
     runs-on: ubuntu-latest
     timeout-minutes: 10
